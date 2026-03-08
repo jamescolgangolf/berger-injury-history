@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daniel Berger · Injury Timeline</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:      #07201b;
+    --card:    #0f3a31;
+    --accent:  #00ff94;
+    --warn:    #ff6b35;
+    --gold:    #f0c040;
+    --muted:   #6aaa90;
+    --dim:     #3d7a63;
+    --text:    #dff5ec;
+    --border:  rgba(0,255,148,0.15);
+  }
+
+  body {
+    background: var(--bg);
+    font-family: 'DM Sans', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+    padding: 24px 16px;
+  }
+
+  /* scanline */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.04) 2px, rgba(0,0,0,0.04) 4px);
+    pointer-events: none; z-index: 999;
+  }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    width: 100%;
+    max-width: 400px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* top accent bar */
+  .card::before {
+    content: '';
+    display: block;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent), var(--warn) 60%, transparent);
+  }
+
+  /* header */
+  .hd {
+    padding: 16px 18px 14px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .hd-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 36px;
+    line-height: 0.9;
+    color: var(--text);
+  }
+  .hd-name span { color: var(--accent); }
+  .hd-sub {
+    font-family: 'DM Mono', monospace;
+    font-size: 8.5px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-top: 5px;
+  }
+  .hd-stats {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+  .pill {
+    font-family: 'DM Mono', monospace;
+    font-size: 8.5px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border: 1px solid;
+    white-space: nowrap;
+  }
+  .pill-gold  { color: var(--gold);   border-color: var(--gold);   background: rgba(240,192,64,0.1); }
+  .pill-warn  { color: var(--warn);   border-color: var(--warn);   background: rgba(255,107,53,0.1); }
+  .pill-green { color: var(--accent); border-color: var(--accent); background: rgba(0,255,148,0.08); }
+
+  /* spine + events */
+  .events {
+    padding: 14px 18px 14px 14px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  /* vertical line */
+  .events::before {
+    content: '';
+    position: absolute;
+    left: 22px; top: 18px; bottom: 18px;
+    width: 1px;
+    background: linear-gradient(180deg, rgba(0,255,148,0.2), rgba(0,255,148,0.05));
+  }
+
+  .ev {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    padding: 7px 6px;
+    position: relative;
+    cursor: default;
+    border-radius: 2px;
+    transition: background 0.2s ease;
+  }
+  .ev:hover { background: rgba(0,255,148,0.05); }
+  .ev:hover .dot.r { box-shadow: 0 0 8px rgba(0,255,148,0.7); }
+  .ev:hover .dot.w { box-shadow: 0 0 8px rgba(240,192,64,0.7); }
+  .ev:hover .dot.i { box-shadow: 0 0 8px rgba(255,107,53,0.7); }
+  .ev:hover .ev-date { color: var(--muted); }
+  .ev:hover .ev-title { filter: brightness(1.15); }
+
+  .dot {
+    width: 9px; height: 9px;
+    border-radius: 50%;
+    border: 2px solid var(--accent);
+    background: var(--bg);
+    flex-shrink: 0;
+    margin-top: 3px;
+    z-index: 1;
+    position: relative;
+    transition: box-shadow 0.2s ease;
+  }
+  .dot.w { border-color: var(--gold);   background: rgba(240,192,64,0.15); }
+  .dot.i { border-color: var(--warn);   background: rgba(255,107,53,0.15); }
+  .dot.r { border-color: var(--accent); background: rgba(0,255,148,0.1); }
+
+  .ev-text { flex: 1; min-width: 0; }
+
+  .ev-date {
+    font-family: 'DM Mono', monospace;
+    font-size: 8.5px;
+    color: var(--dim);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    line-height: 1;
+    margin-bottom: 2px;
+  }
+
+  .ev-title {
+    font-size: 12.5px;
+    font-weight: 500;
+    color: var(--text);
+    line-height: 1.3;
+  }
+  .ev-title.warn { color: rgba(255,107,53,0.9); }
+  .ev-title.gold { color: rgba(240,192,64,0.9); }
+
+  /* separator */
+  .sep {
+    height: 1px;
+    background: var(--border);
+    margin: 2px 0;
+  }
+
+  /* status footer */
+  .footer {
+    border-top: 1px solid var(--border);
+    padding: 11px 18px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(0,255,148,0.04);
+  }
+  .pulse {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--accent);
+    flex-shrink: 0;
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%,100% { box-shadow: 0 0 4px rgba(0,255,148,0.3); }
+    50%      { box-shadow: 0 0 12px rgba(0,255,148,0.7); }
+  }
+  .footer-text {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    color: var(--muted);
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    line-height: 1.5;
+  }
+  .footer-text strong {
+    color: var(--accent);
+    font-weight: 500;
+  }
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="hd">
+    <div>
+      <div class="hd-name">Daniel<br><span>Berger</span></div>
+      <div class="hd-sub">PGA Tour · Injury Record</div>
+    </div>
+    <div class="hd-stats">
+      <span class="pill pill-gold">4 Tour Wins</span>
+      <span class="pill pill-warn">~27 Mo. Lost</span>
+      <span class="pill pill-green">Active · 2026</span>
+    </div>
+  </div>
+
+  <div class="events">
+    <div class="ev">
+      <div class="dot w"></div>
+      <div class="ev-text">
+        <div class="ev-date">Feb 2021</div>
+        <div class="ev-title gold">Wins Pebble Beach — 4th career title</div>
+      </div>
+    </div>
+
+    <div class="ev">
+      <div class="dot w"></div>
+      <div class="ev-text">
+        <div class="ev-date">Sep 2021</div>
+        <div class="ev-title gold">Ryder Cup · Ranked No. 12 in world</div>
+      </div>
+    </div>
+
+    <div class="sep"></div>
+
+    <div class="ev">
+      <div class="dot i"></div>
+      <div class="ev-text">
+        <div class="ev-date">Dec 2021</div>
+        <div class="ev-title warn">Back pain begins — Hero World Challenge</div>
+      </div>
+    </div>
+
+    <div class="ev">
+      <div class="dot i"></div>
+      <div class="ev-text">
+        <div class="ev-date">Jun 2022</div>
+        <div class="ev-title warn">WD post–U.S. Open · Last start for 19 months</div>
+      </div>
+    </div>
+
+    <div class="ev">
+      <div class="dot i"></div>
+      <div class="ev-text">
+        <div class="ev-date">Dec 2022</div>
+        <div class="ev-title warn">Lumbar disc bulge + bone sensitivity</div>
+      </div>
+    </div>
+
+    <div class="ev">
+      <div class="dot i"></div>
+      <div class="ev-text">
+        <div class="ev-date">All of 2023</div>
+        <div class="ev-title warn">Full season lost — no surgery, slow rehab</div>
+      </div>
+    </div>
+
+    <div class="sep"></div>
+
+    <div class="ev">
+      <div class="dot r"></div>
+      <div class="ev-text">
+        <div class="ev-date">Jan 2024</div>
+        <div class="ev-title">Returns at The American Express</div>
+      </div>
+    </div>
+
+    <div class="ev">
+      <div class="dot i"></div>
+      <div class="ev-text">
+        <div class="ev-date">Aug 2025</div>
+        <div class="ev-title warn">Broken finger — BMW Championship WD</div>
+      </div>
+    </div>
+
+    <div class="ev">
+      <div class="dot r"></div>
+      <div class="ev-text">
+        <div class="ev-date">Mar 2026</div>
+        <div class="ev-title">Arnold Palmer Inv. — shoots 63, leads</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div class="pulse"></div>
+    <div class="footer-text">
+      <strong>Currently healthy</strong> · Last win: AT&T Pebble Beach, Feb 2021
+    </div>
+  </div>
+</div>
+</body>
+</html>
