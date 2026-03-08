@@ -9,25 +9,25 @@
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root {
-    --bg:      #07201b;
-    --card:    #0f3a31;
-    --accent:  #00ff94;
-    --warn:    #ff6b35;
-    --gold:    #f0c040;
-    --muted:   #6aaa90;
-    --dim:     #3d7a63;
-    --text:    #dff5ec;
-    --border:  rgba(0,255,148,0.15);
+    --bg:     #07201b;
+    --card:   #0f3a31;
+    --accent: #00ff94;
+    --warn:   #ff6b35;
+    --gold:   #f0c040;
+    --muted:  #6aaa90;
+    --dim:    #3d7a63;
+    --text:   #dff5ec;
+    --border: rgba(0,255,148,0.15);
   }
 
-  body {
+  html, body {
+    margin: 0;
+    padding: 0;
     background: var(--bg);
     font-family: 'DM Sans', sans-serif;
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    min-height: 100vh;
-    padding: 24px 16px;
+    font-size: 15px;
+    width: 100%;
+    overflow-x: hidden;
   }
 
   /* scanline */
@@ -42,12 +42,10 @@
     background: var(--card);
     border: 1px solid var(--border);
     width: 100%;
-    max-width: 400px;
     overflow: hidden;
     position: relative;
   }
 
-  /* top accent bar */
   .card::before {
     content: '';
     display: block;
@@ -55,7 +53,6 @@
     background: linear-gradient(90deg, var(--accent), var(--warn) 60%, transparent);
   }
 
-  /* header */
   .hd {
     padding: 16px 18px 14px;
     border-bottom: 1px solid var(--border);
@@ -63,7 +60,9 @@
     align-items: flex-end;
     justify-content: space-between;
     gap: 12px;
+    background: var(--bg);
   }
+
   .hd-name {
     font-family: 'Bebas Neue', sans-serif;
     font-size: 36px;
@@ -71,6 +70,7 @@
     color: var(--text);
   }
   .hd-name span { color: var(--accent); }
+
   .hd-sub {
     font-family: 'DM Mono', monospace;
     font-size: 8.5px;
@@ -79,13 +79,15 @@
     text-transform: uppercase;
     margin-top: 5px;
   }
-  .hd-stats {
+
+  .hd-pills {
     display: flex;
     flex-direction: column;
     align-items: flex-end;
     gap: 4px;
     flex-shrink: 0;
   }
+
   .pill {
     font-family: 'DM Mono', monospace;
     font-size: 8.5px;
@@ -94,27 +96,27 @@
     padding: 3px 8px;
     border: 1px solid;
     white-space: nowrap;
+    line-height: 1.4;
   }
   .pill-gold  { color: var(--gold);   border-color: var(--gold);   background: rgba(240,192,64,0.1); }
   .pill-warn  { color: var(--warn);   border-color: var(--warn);   background: rgba(255,107,53,0.1); }
   .pill-green { color: var(--accent); border-color: var(--accent); background: rgba(0,255,148,0.08); }
 
-  /* spine + events */
   .events {
     padding: 14px 18px 14px 14px;
     position: relative;
     display: flex;
     flex-direction: column;
-    gap: 0;
+    background: var(--bg);
   }
 
-  /* vertical line */
   .events::before {
     content: '';
     position: absolute;
     left: 22px; top: 18px; bottom: 18px;
     width: 1px;
     background: linear-gradient(180deg, rgba(0,255,148,0.2), rgba(0,255,148,0.05));
+    pointer-events: none;
   }
 
   .ev {
@@ -122,32 +124,30 @@
     gap: 10px;
     align-items: flex-start;
     padding: 7px 6px;
-    position: relative;
     cursor: default;
     border-radius: 2px;
     transition: background 0.2s ease;
+    position: relative;
   }
   .ev:hover { background: rgba(0,255,148,0.05); }
-  .ev:hover .dot.r { box-shadow: 0 0 8px rgba(0,255,148,0.7); }
-  .ev:hover .dot.w { box-shadow: 0 0 8px rgba(240,192,64,0.7); }
-  .ev:hover .dot.i { box-shadow: 0 0 8px rgba(255,107,53,0.7); }
-  .ev:hover .ev-date { color: var(--muted); }
+  .ev:hover .dot-r { box-shadow: 0 0 8px rgba(0,255,148,0.7); }
+  .ev:hover .dot-w { box-shadow: 0 0 8px rgba(240,192,64,0.7); }
+  .ev:hover .dot-i { box-shadow: 0 0 8px rgba(255,107,53,0.7); }
+  .ev:hover .ev-date  { color: var(--muted); }
   .ev:hover .ev-title { filter: brightness(1.15); }
 
   .dot {
     width: 9px; height: 9px;
     border-radius: 50%;
-    border: 2px solid var(--accent);
-    background: var(--bg);
     flex-shrink: 0;
     margin-top: 3px;
     z-index: 1;
     position: relative;
     transition: box-shadow 0.2s ease;
   }
-  .dot.w { border-color: var(--gold);   background: rgba(240,192,64,0.15); }
-  .dot.i { border-color: var(--warn);   background: rgba(255,107,53,0.15); }
-  .dot.r { border-color: var(--accent); background: rgba(0,255,148,0.1); }
+  .dot-w { border: 2px solid var(--gold);   background: rgba(240,192,64,0.15); }
+  .dot-i { border: 2px solid var(--warn);   background: rgba(255,107,53,0.15); }
+  .dot-r { border: 2px solid var(--accent); background: rgba(0,255,148,0.1); }
 
   .ev-text { flex: 1; min-width: 0; }
 
@@ -159,6 +159,7 @@
     text-transform: uppercase;
     line-height: 1;
     margin-bottom: 2px;
+    transition: color 0.2s;
   }
 
   .ev-title {
@@ -166,18 +167,17 @@
     font-weight: 500;
     color: var(--text);
     line-height: 1.3;
+    transition: filter 0.2s;
   }
-  .ev-title.warn { color: rgba(255,107,53,0.9); }
-  .ev-title.gold { color: rgba(240,192,64,0.9); }
+  .warn { color: rgba(255,107,53,0.9); }
+  .gold { color: rgba(240,192,64,0.9); }
 
-  /* separator */
   .sep {
     height: 1px;
     background: var(--border);
     margin: 2px 0;
   }
 
-  /* status footer */
   .footer {
     border-top: 1px solid var(--border);
     padding: 11px 18px;
@@ -186,6 +186,7 @@
     gap: 10px;
     background: rgba(0,255,148,0.04);
   }
+
   .pulse {
     width: 7px; height: 7px;
     border-radius: 50%;
@@ -197,6 +198,7 @@
     0%,100% { box-shadow: 0 0 4px rgba(0,255,148,0.3); }
     50%      { box-shadow: 0 0 12px rgba(0,255,148,0.7); }
   }
+
   .footer-text {
     font-family: 'DM Mono', monospace;
     font-size: 9px;
@@ -205,20 +207,18 @@
     text-transform: uppercase;
     line-height: 1.5;
   }
-  .footer-text strong {
-    color: var(--accent);
-    font-weight: 500;
-  }
+  .footer-text strong { color: var(--accent); font-weight: 500; }
 </style>
 </head>
 <body>
+
 <div class="card">
   <div class="hd">
     <div>
       <div class="hd-name">Daniel<br><span>Berger</span></div>
       <div class="hd-sub">PGA Tour · Injury Record</div>
     </div>
-    <div class="hd-stats">
+    <div class="hd-pills">
       <span class="pill pill-gold">4 Tour Wins</span>
       <span class="pill pill-warn">~27 Mo. Lost</span>
       <span class="pill pill-green">Active · 2026</span>
@@ -226,8 +226,9 @@
   </div>
 
   <div class="events">
+
     <div class="ev">
-      <div class="dot w"></div>
+      <div class="dot dot-w"></div>
       <div class="ev-text">
         <div class="ev-date">Feb 2021</div>
         <div class="ev-title gold">Wins Pebble Beach — 4th career title</div>
@@ -235,7 +236,7 @@
     </div>
 
     <div class="ev">
-      <div class="dot w"></div>
+      <div class="dot dot-w"></div>
       <div class="ev-text">
         <div class="ev-date">Sep 2021</div>
         <div class="ev-title gold">Ryder Cup · Ranked No. 12 in world</div>
@@ -245,7 +246,7 @@
     <div class="sep"></div>
 
     <div class="ev">
-      <div class="dot i"></div>
+      <div class="dot dot-i"></div>
       <div class="ev-text">
         <div class="ev-date">Dec 2021</div>
         <div class="ev-title warn">Back pain begins — Hero World Challenge</div>
@@ -253,7 +254,7 @@
     </div>
 
     <div class="ev">
-      <div class="dot i"></div>
+      <div class="dot dot-i"></div>
       <div class="ev-text">
         <div class="ev-date">Jun 2022</div>
         <div class="ev-title warn">WD post–U.S. Open · Last start for 19 months</div>
@@ -261,7 +262,7 @@
     </div>
 
     <div class="ev">
-      <div class="dot i"></div>
+      <div class="dot dot-i"></div>
       <div class="ev-text">
         <div class="ev-date">Dec 2022</div>
         <div class="ev-title warn">Lumbar disc bulge + bone sensitivity</div>
@@ -269,17 +270,17 @@
     </div>
 
     <div class="ev">
-      <div class="dot i"></div>
+      <div class="dot dot-i"></div>
       <div class="ev-text">
         <div class="ev-date">All of 2023</div>
-        <div class="ev-title warn">Full season lost — no surgery, slow rehab</div>
+        <div class="ev-title warn">Full season lost — slow rehab</div>
       </div>
     </div>
 
     <div class="sep"></div>
 
     <div class="ev">
-      <div class="dot r"></div>
+      <div class="dot dot-r"></div>
       <div class="ev-text">
         <div class="ev-date">Jan 2024</div>
         <div class="ev-title">Returns at The American Express</div>
@@ -287,7 +288,7 @@
     </div>
 
     <div class="ev">
-      <div class="dot i"></div>
+      <div class="dot dot-i"></div>
       <div class="ev-text">
         <div class="ev-date">Aug 2025</div>
         <div class="ev-title warn">Broken finger — BMW Championship WD</div>
@@ -295,12 +296,13 @@
     </div>
 
     <div class="ev">
-      <div class="dot r"></div>
+      <div class="dot dot-r"></div>
       <div class="ev-text">
         <div class="ev-date">Mar 2026</div>
         <div class="ev-title">Arnold Palmer Inv. — shoots 63, leads</div>
       </div>
     </div>
+
   </div>
 
   <div class="footer">
@@ -310,5 +312,16 @@
     </div>
   </div>
 </div>
+
+<script>
+  // Tells the parent page how tall to make the iframe
+  function sendHeight() {
+    window.parent.postMessage({ iframeHeight: document.body.scrollHeight }, '*');
+  }
+  window.addEventListener('load', sendHeight);
+  window.addEventListener('resize', sendHeight);
+  new ResizeObserver(sendHeight).observe(document.body);
+</script>
+
 </body>
 </html>
